@@ -28,15 +28,6 @@ public class WalmartDao implements EcommerceDao{
         String urlString  = baseUrl+"/"+itemId+"?format=json&apiKey=" + apiKey;
         System.out.println(urlString);
         System.out.println(apiKey);
-//        URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl)
-//                .path(itemId)
-//                .queryParam("format", "json")
-//                .queryParam("apiKey", apiKey)
-//                .build().toUri();
-//
-//        System.out.println("URI value " + uri.toString());
-//        URL url = uri.toURL();
-//        System.out.println("URL value: " + url.toString());
         URL url = new URL(urlString);
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<WalmartResponse> response = restTemplate.getForEntity(url.toString(), WalmartResponse.class);

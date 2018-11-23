@@ -10,10 +10,7 @@ import io.swagger.model.LoginToken;
 import io.swagger.model.ProductItem;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -85,6 +82,6 @@ public interface TrackingApi {
         @ApiResponse(code = 405, message = "Could not update product item") })
     @RequestMapping(value = "/tracking/{productUrl}",
         method = RequestMethod.POST)
-    ResponseEntity<ProductItem> updateProductItem(@ApiParam(value = "",required=true) @PathVariable("productUrl") String url, @PathVariable("price") Double price, @ApiParam(value = "" ,required=true )  @Valid @RequestBody LoginToken loginToken);
+    ResponseEntity<ProductItem> updateProductItem(@ApiParam(value = "",required=true) @PathVariable("productUrl") String url, @RequestParam("price") Double price, @ApiParam(value = "" ,required=true )  @Valid @RequestBody LoginToken loginToken);
 
 }

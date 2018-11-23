@@ -7,8 +7,6 @@
      * DB_USER: db username. Need to set this only if the username is not the usual "username".
      * DB_PWD : the database password Need to set this only if the password is not the usual "password".
      * WALMART_API_KEY: api key for walmart
-     * EMAIL : email id to use for sending emails to customers
-     * EMAIL_PWD : the email password
      
 * run the code. Make sure the code runs in the same shell as where the environment variables are exported. 
 
