@@ -48,7 +48,6 @@ public class ProductJdbcDatabase implements JdbcDatabase {
 		dataSource = new DriverManagerDataSource();
 		dataSource.setDriverClassName("org.postgresql.Driver");
 		// replace with local database
-		System.out.println(dbUrl);
 		dataSource.setUrl(dbUrl);
 		dataSource.setUsername(dbUsername);
 		dataSource.setPassword(dbPassword);
