@@ -29,6 +29,12 @@ public class ProductJdbcDatabase implements JdbcDatabase {
 	@Value("${DB_URL}")
 	String dbUrl;
 
+	@Value("${DB_USER:username}")
+	String dbUsername;
+
+	@Value("${DB_PWD:password}")
+	String dbPassword;
+
 	private DriverManagerDataSource dataSource;
 
 	private JdbcTemplate jdbcTemplate;
@@ -44,8 +50,8 @@ public class ProductJdbcDatabase implements JdbcDatabase {
 		// replace with local database
 		System.out.println(dbUrl);
 		dataSource.setUrl(dbUrl);
-		dataSource.setUsername("username");
-		dataSource.setPassword("password");
+		dataSource.setUsername(dbUsername);
+		dataSource.setPassword(dbPassword);
 		jdbcTemplate = new JdbcTemplate(dataSource);
 		// check connection
 		try {
