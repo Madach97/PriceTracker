@@ -1,8 +1,12 @@
 package io.swagger.model;
 
+import java.util.Date;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.threeten.bp.OffsetDateTime;
@@ -22,9 +26,10 @@ public class LoginToken   {
 
   @JsonProperty("sessionToken")
   private String sessionToken = null;
-
-  @JsonProperty("expiryTime")
-  private OffsetDateTime expiryTime = null;
+//
+//  @JsonDeserialize
+//  @JsonProperty("expiryTime")
+//  private Date expiryTime = null;
 
   public LoginToken username(String username) {
     this.username = username;
@@ -34,7 +39,7 @@ public class LoginToken   {
   /**
    * Get username
    * @return username
-  **/
+   **/
   @ApiModelProperty(value = "")
 
 
@@ -54,10 +59,9 @@ public class LoginToken   {
   /**
    * Get sessionToken
    * @return sessionToken
-  **/
+   **/
   @ApiModelProperty(value = "")
 
-@Size(min=128,max=256) 
   public String getSessionToken() {
     return sessionToken;
   }
@@ -66,26 +70,26 @@ public class LoginToken   {
     this.sessionToken = sessionToken;
   }
 
-  public LoginToken expiryTime(OffsetDateTime expiryTime) {
-    this.expiryTime = expiryTime;
-    return this;
-  }
+//  public LoginToken expiryTime(Date expiryTime) {
+//    this.expiryTime = expiryTime;
+//    return this;
+//  }
 
   /**
    * Get expiryTime
    * @return expiryTime
-  **/
+   **/
   @ApiModelProperty(value = "")
 
-  @Valid
-
-  public OffsetDateTime getExpiryTime() {
-    return expiryTime;
-  }
-
-  public void setExpiryTime(OffsetDateTime expiryTime) {
-    this.expiryTime = expiryTime;
-  }
+//  @Valid
+//  @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "EST")
+//  public Date getExpiryTime() {
+//    return expiryTime;
+//  }
+//
+//  public void setExpiryTime(Date expiryTime) {
+//    this.expiryTime = expiryTime;
+//  }
 
 
   @Override
@@ -98,23 +102,23 @@ public class LoginToken   {
     }
     LoginToken loginToken = (LoginToken) o;
     return Objects.equals(this.username, loginToken.username) &&
-        Objects.equals(this.sessionToken, loginToken.sessionToken) &&
-        Objects.equals(this.expiryTime, loginToken.expiryTime);
+            Objects.equals(this.sessionToken, loginToken.sessionToken);
+    //Objects.equals(this.expiryTime, loginToken.expiryTime);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(username, sessionToken, expiryTime);
+    return Objects.hash(username, sessionToken);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class LoginToken {\n");
-    
+
     sb.append("    username: ").append(toIndentedString(username)).append("\n");
     sb.append("    sessionToken: ").append(toIndentedString(sessionToken)).append("\n");
-    sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
+    //sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
     sb.append("}");
     return sb.toString();
   }

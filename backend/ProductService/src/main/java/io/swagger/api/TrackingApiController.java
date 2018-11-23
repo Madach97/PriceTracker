@@ -1,6 +1,5 @@
 package io.swagger.api;
 
-import com.EbucketList.api.WalmartApiHandler;
 import io.swagger.database.api.JdbcDatabase;
 import io.swagger.model.ProductRequest;
 import io.swagger.model.LoginToken;
@@ -43,6 +42,9 @@ public class TrackingApiController implements TrackingApi {
     private JdbcDatabase db ;
 
     @Autowired
+    APIHandler walmartApiHandler;
+
+    @Autowired
     public TrackingApiController(ObjectMapper objectMapper, HttpServletRequest request) {
         this.objectMapper = objectMapper;
         this.request = request;
@@ -70,8 +72,6 @@ public class TrackingApiController implements TrackingApi {
                     return new ResponseEntity<ProductItem>(HttpStatus.FORBIDDEN);
                 }
                 else{
-                    db.trackProduct(body); //update to use new models
-                    WalmartApiHandler walmartApiHandler = new WalmartApiHandler();
                     double price = walmartApiHandler.getPrice(body.getUrl());
                     Product product = walmartApiHandler.getProduct(body.getUrl());
                     ProductItem  productItem = new ProductItem();

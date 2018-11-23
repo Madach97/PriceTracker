@@ -23,7 +23,6 @@ import java.util.Map;
 
 @Configuration
 @Component
-@Repository
 public class ProductJdbcDatabase implements JdbcDatabase {
 
 	@Value("${DB_URL}")
@@ -78,7 +77,7 @@ public class ProductJdbcDatabase implements JdbcDatabase {
 	 */
 	public void trackProduct(ProductRequest productReq) {
 		SimpleJdbcCall jdbcCall = new SimpleJdbcCall(dataSource).withProcedureName("trackProduct");
-		MapSqlParameterSource in = new MapSqlParameterSource().addValue("token", productReq.getLoginToken().getSessionToken());
+        MapSqlParameterSource in = new MapSqlParameterSource().addValue("token", productReq.getLoginToken().getSessionToken());
 		in.addValue("site", productReq.getUrl());
 		Map<String, Object> out = jdbcCall.execute(in);
 	}
