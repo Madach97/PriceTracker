@@ -1,87 +1,106 @@
 package com.spacewhales.EbucketList;
 
-import org.junit.Before;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import io.swagger.api.TrackingApi;
+import io.swagger.model.LoginToken;
+import io.swagger.model.ProductItem;
+import io.swagger.model.ProductRequest;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.api.TrackingApiController;
+import static io.restassured.RestAssured.given;
 
-@EnableAutoConfiguration
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TrackingApiController.class, webEnvironment = WebEnvironment.DEFINED_PORT)
-public class EbucketListApplicationTests
-{
-    @LocalServerPort
-    private int port;
+@SpringBootTest
+public class EbucketListApplicationTests {
 
-	private TestRestTemplate restTemplate;
+	@Autowired
+	TrackingApi trackingApi;
 
-	private HttpHeaders headers;
+	private LoginToken loginToken = new LoginToken();
 
-	private ObjectMapper om;
+	@LocalServerPort
+	private int port;
 
-	private String createURLWithPort(String uri) {
-		return "http://localhost:" + port + uri;
+	@BeforeClass
+	public void setup() {
+		RestAssured.port = port;
+		loginToken.setUsername("new_user");
+		loginToken.setSessionToken("d3334599-124e-43b2-8183-482e4a532da9");
 	}
-	
-	@Before
-	public void setup()
-	{
-		restTemplate = new TestRestTemplate();
-		
-		headers = new HttpHeaders();
-		headers.add("Content-Type", "application/json");
 
-		om = new ObjectMapper();
-	}
-	
 	@Test
-	public void contextLoads() {}
-	
-	
-	@Test
-	public void hitTrackingService() throws Exception
-	{
-		HttpEntity<String> entity = new HttpEntity<String>(null, headers);
+	public void testaddTrackedProduct() {
 
-		ResponseEntity<String> response = restTemplate.exchange(
-				createURLWithPort("/tracking/ping"),
-				HttpMethod.GET, entity, String.class);
+		ProductRequest productRequest = new ProductRequest();
+		productRequest.setUrl("https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980");
+		productRequest.setLoginToken(loginToken);
 
-		assert(response.getStatusCode().equals(HttpStatus.NOT_IMPLEMENTED));
+		Response response =
+				given().accept("application/json")
+						.contentType(ContentType.JSON)
+						.body(productRequest)
+						.when().
+						put("/tracking/all").
+						then()
+						.statusCode(200).extract().response();
+
 	}
-	
-	/*
-	Removed for now due to serialization issues.
-	
-	@Test
-	public void hitEndpointTokenValidate() throws Exception 
-	{
-		LoginToken t = new LoginToken();
-		t.setUsername("testUsername");
-		t.sessionToken("randomToken");
-		t.setExpiryTime(OffsetDateTime.now());
-		
-		HttpEntity<String> entity = new HttpEntity<String>(om.writeValueAsString(t), headers);
 
-		ResponseEntity<String> response = restTemplate.exchange(
-				createURLWithPort("/users/token/validate"),
-				HttpMethod.GET, entity, String.class);
+	public void testgetTrackedProductInfo() {
 
-		assert(response.getStatusCode().equals(HttpStatus.NOT_IMPLEMENTED));
+		String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
+		ProductRequest productRequest = new ProductRequest();
+		productRequest.setUrl("https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980");
+		productRequest.setLoginToken(loginToken);
+		Response response =
+				given().accept("application/json")
+						.contentType(ContentType.JSON)
+						.body(productRequest)
+						.when().
+						post("/tracking/"+url+"/info").
+						then()
+						.statusCode(200).extract().response();
+
 	}
-	*/
-	
+
+	@Test
+	public void testDeleteTrackedProduct(){
+
+		String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
+		ProductRequest productRequest = new ProductRequest();
+		productRequest.setUrl("https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980");
+		productRequest.setLoginToken(loginToken);
+		Response response =
+				given().accept("application/json")
+						.contentType(ContentType.JSON)
+						.body(productRequest)
+						.when().
+						delete("/tracking/"+url+"/info").
+						then()
+						.statusCode(200).extract().response();
+
+	}
+
+	@Test
+	public void testGetTrackedProducts() {
+
+		Response response =
+				given().accept("application/json")
+						.contentType(ContentType.JSON)
+						.body(loginToken)
+						.when().
+						put("/tracking/all").
+						then()
+						.statusCode(200).extract().response();
+
+	}
+
 }
