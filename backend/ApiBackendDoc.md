@@ -39,36 +39,43 @@ Notes:
     "Content-Type": "application/json"
 
 #### User Service 
-* login
+* login:
      localhost:8080/users/token/login
      * sample request 
+     ```
           {
                "username": "new_user",
                "password": "new_user"
           }
+     ```
      * sample response 
+     ```
           {
                "username": "new_user",
                "sessionToken": "6a50c36e-8be7-44e5-9990-eec401c12f98",
                "expiryTime": "2018-11-25T13:52:58.106-0500"
           }
+     ```
 
 
-* New user
+* New user:
 l    localhost:8080/users/manage
      * sample request 
+     ```
           {
                "username": "test_user",
                "password": "test_user",
                "email": "test_new@example.com"
           }
+     ```
      * sample response 
        no response body
 
 #### Product Service
-* Add a product to the tracking list
+* Add a product to the tracking list:
      localhost:9090/tracking/all
      * sample request
+     ```
           {
                "url": https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980",
               "loginToken": {
@@ -77,7 +84,9 @@ l    localhost:8080/users/manage
                     "expiryTime": "2018-11-25T13:43:52.852-0500"
                }
           }
+     ```
      * sample response 
+     ```
           {
                "productId": "10727980",
                "productName": "Timex Men's Classic Digital Watch, Gold-Tone Stainless Steel Expansion Band",
@@ -87,16 +96,20 @@ l    localhost:8080/users/manage
                "vendor": "Walmart",
                "url": "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980"
           }
+     ```
 
-* Get all the products the user is tracking
+* Get all the products the user is tracking:
      localhost:9090/tracking/all
      * sample request
+     ```
           {
                "username": "new_user",
                "sessionToken": "6a50c36e-8be7-44e5-9990-eec401c12f98",
                "expiryTime": "2018-11-25T13:43:52.852-0500"
           }
+     ```
      * sample response 
+     ````
           [
                {
                     "productId": null,
@@ -108,9 +121,11 @@ l    localhost:8080/users/manage
                     "url": "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980"
                }
           ]
-* get product info
+     ```
+* get product info:
      localhost:9090/tracking/10727980/info
      * sample request 
+     ```
           {
                "url": "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980",
                "loginToken":{
@@ -119,8 +134,9 @@ l    localhost:8080/users/manage
                     "expiryTime": "2018-11-25T13:43:52.852-0500"
                }
           }
-     
+     ```     
      * sample response
+     ```
           {
                "productId": null,
                "productName": "Timex Men's Classic Digital Watch, Gold-Tone Stainless Steel Expansion Band",
@@ -130,10 +146,12 @@ l    localhost:8080/users/manage
                "vendor": null,
                "url": "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980"
           }
+     ```
 
-* delete product from wishlist
+* delete product from wishlist:
      localhost:9090/tracking/10727980
      * sample request 
+     ```
           {
                "url": "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980",
                "loginToken": 
@@ -143,3 +161,4 @@ l    localhost:8080/users/manage
                     "expiryTime": "2018-11-25T13:43:52.852-0500"
                     }
           }   
+     ```
