@@ -3,20 +3,15 @@ package com.spacewhales.EbucketList;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import io.swagger.api.TrackingApi;
 import io.swagger.model.LoginToken;
-import io.swagger.model.ProductItem;
 import io.swagger.model.ProductRequest;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestTemplate;
 
 import static io.restassured.RestAssured.given;
 
@@ -24,15 +19,23 @@ import static io.restassured.RestAssured.given;
 @ContextConfiguration
 public class EbucketListApplicationTests {
 
-	private LoginToken loginToken = new LoginToken();
+	private static LoginToken loginToken;
 
-	private int port = 9090;
+	private static int port = 9090;
 
-	@Before
-	public void setup() {
+	@BeforeClass
+	public static void setup() {
+		RestTemplate restTemplate = new RestTemplate();
+		LoginRequest loginRequest = new LoginRequest();
+		loginRequest.setUsername("test_user");
+		loginRequest.setPassword("test_user");
+		ResponseEntity<LoginToken> response = restTemplate.postForEntity("http://localhost:8080/users/token/login", loginRequest, LoginToken.class);
+		int status = response.getStatusCode().value();
+		loginToken = response.getBody();
+		if(status != 200){
+		   throw new NullPointerException("cannot get user token");
+		}
 		RestAssured.port = port;
-		loginToken.setUsername("new_user");
-		loginToken.setSessionToken("6a50c36e-8be7-44e5-9990-eec401c12f98");
 	}
 
 	@Test
