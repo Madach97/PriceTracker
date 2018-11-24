@@ -107,7 +107,7 @@ public class LoginToken   {
 
   @Override
   public int hashCode() {
-    return Objects.hash(username, sessionToken);
+    return Objects.hash(username, sessionToken, expiryTime);
   }
 
   @Override

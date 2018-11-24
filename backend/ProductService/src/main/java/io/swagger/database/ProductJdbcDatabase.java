@@ -60,7 +60,7 @@ public class ProductJdbcDatabase implements JdbcDatabase {
 	}
 	/**
 	 * add product to product table if it doesn't exist
-	 * 
+	 *
 	 * @param product
 	 */
 	public void insertProduct(ProductItem product) {
@@ -72,19 +72,19 @@ public class ProductJdbcDatabase implements JdbcDatabase {
 	}
 	/**
 	 * add product to wishlist
-	 * 
+	 *
 	 * @param productReq
 	 */
 	public void trackProduct(ProductRequest productReq) {
 		SimpleJdbcCall jdbcCall = new SimpleJdbcCall(dataSource).withProcedureName("trackProduct");
-        MapSqlParameterSource in = new MapSqlParameterSource().addValue("token", productReq.getLoginToken().getSessionToken());
+		MapSqlParameterSource in = new MapSqlParameterSource().addValue("token", productReq.getLoginToken().getSessionToken());
 		in.addValue("site", productReq.getUrl());
 		Map<String, Object> out = jdbcCall.execute(in);
 	}
 
 	/**
 	 * delete product to wishlist
-	 * 
+	 *
 	 * @param productId
 	 */
 	public void untrackProduct(ProductRequest product) {
@@ -96,7 +96,7 @@ public class ProductJdbcDatabase implements JdbcDatabase {
 
 	/**
 	 * update product price
-	 * 
+	 *
 	 * @param product
 	 */
 	public void updatePrice(ProductItem product) {
@@ -108,7 +108,7 @@ public class ProductJdbcDatabase implements JdbcDatabase {
 
 	/**
 	 * getProduct info
-	 * 
+	 *
 	 * @param product
 	 */
 	public ProductItem getProduct(ProductRequest product) {
@@ -123,10 +123,10 @@ public class ProductJdbcDatabase implements JdbcDatabase {
 		return pi;
 
 	}
-	
+
 	/**
 	 * get Wishlist
-	 * 
+	 *
 	 * @param token
 	 */
 	public List<String> getWishlist(LoginToken token) {
@@ -135,12 +135,12 @@ public class ProductJdbcDatabase implements JdbcDatabase {
 		Map<String, Object> out = jdbcCall.execute(in);
 		Integer user_id = (Integer) out.get("user_id");
 		List<String> products = this.jdbcTemplate.query(
-		        "SELECT site FROM public.wishlist WHERE user_id = "+user_id+";",
-		        new RowMapper<String>() {
-		            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-		            	return rs.getString("site");
-		            }
-		        });
+				"SELECT site FROM public.wishlist WHERE user_id = "+user_id+";",
+				new RowMapper<String>() {
+					public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+						return rs.getString("site");
+					}
+				});
 		return products;
 
 	}
