@@ -3,21 +3,31 @@ package com.spacewhales.EbucketList;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.swagger.Swagger2SpringBoot;
+import io.swagger.api.TrackingApiController;
+import io.swagger.database.ProductJdbcDatabase;
 import io.swagger.model.LoginToken;
 import io.swagger.model.ProductRequest;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
 
 import static io.restassured.RestAssured.given;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@EnableAutoConfiguration
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class EbucketListApplicationTests {
 
 	private static LoginToken loginToken;
@@ -40,7 +50,7 @@ public class EbucketListApplicationTests {
 	}
 
 	@Test
-	public void testaddTrackedProduct() {
+	public void test1AddTrackedProduct() {
 
 		ProductRequest productRequest = new ProductRequest();
 		productRequest.setUrl("https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980");
@@ -57,7 +67,8 @@ public class EbucketListApplicationTests {
 
 	}
 
-	public void testGetTrackedProductInfo() {
+	@Test
+	public void test2GetTrackedProductInfo() {
 
 		String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
 		ProductRequest productRequest = new ProductRequest();
@@ -68,14 +79,14 @@ public class EbucketListApplicationTests {
 						.contentType(ContentType.JSON)
 						.body(productRequest)
 						.when()
-						.post("/tracking/"+url+"/info")
+						.post("/tracking/17239349/info")
 						.then()
 						.statusCode(200).extract().response();
 
 	}
 
 	@Test
-	public void testDeleteTrackedProduct(){
+	public void test4DeleteTrackedProduct(){
 
 		String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
 		ProductRequest productRequest = new ProductRequest();
@@ -86,14 +97,14 @@ public class EbucketListApplicationTests {
 						.contentType(ContentType.JSON)
 						.body(productRequest)
 						.when()
-						.delete("/tracking/"+url+"/info")
+						.delete("/tracking/17239349")
 						.then()
 						.statusCode(200).extract().response();
 
 	}
 
 	@Test
-	public void testGetTrackedProducts() {
+	public void test3GetTrackedProducts() {
 
 		Response response =
 				given().accept("application/json")
