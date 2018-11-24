@@ -26,10 +26,9 @@ public class LoginToken   {
 
   @JsonProperty("sessionToken")
   private String sessionToken = null;
-//
-//  @JsonDeserialize
-//  @JsonProperty("expiryTime")
-//  private Date expiryTime = null;
+
+  @JsonProperty("expiryTime")
+  private Date expiryTime = null;
 
   public LoginToken username(String username) {
     this.username = username;
@@ -70,10 +69,10 @@ public class LoginToken   {
     this.sessionToken = sessionToken;
   }
 
-//  public LoginToken expiryTime(Date expiryTime) {
-//    this.expiryTime = expiryTime;
-//    return this;
-//  }
+  public LoginToken expiryTime(Date expiryTime) {
+    this.expiryTime = expiryTime;
+    return this;
+  }
 
   /**
    * Get expiryTime
@@ -81,15 +80,15 @@ public class LoginToken   {
   **/
   @ApiModelProperty(value = "")
 
-//  @Valid
-//  @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "EST")
-//  public Date getExpiryTime() {
-//    return expiryTime;
-//  }
-//
-//  public void setExpiryTime(Date expiryTime) {
-//    this.expiryTime = expiryTime;
-//  }
+  @Valid
+  @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "EST")
+  public Date getExpiryTime() {
+    return expiryTime;
+  }
+
+  public void setExpiryTime(Date expiryTime) {
+    this.expiryTime = expiryTime;
+  }
 
 
   @Override
@@ -102,8 +101,8 @@ public class LoginToken   {
     }
     LoginToken loginToken = (LoginToken) o;
     return Objects.equals(this.username, loginToken.username) &&
-        Objects.equals(this.sessionToken, loginToken.sessionToken);
-        //Objects.equals(this.expiryTime, loginToken.expiryTime);
+        Objects.equals(this.sessionToken, loginToken.sessionToken) &&
+        Objects.equals(this.expiryTime, loginToken.expiryTime);
   }
 
   @Override
@@ -118,7 +117,7 @@ public class LoginToken   {
     
     sb.append("    username: ").append(toIndentedString(username)).append("\n");
     sb.append("    sessionToken: ").append(toIndentedString(sessionToken)).append("\n");
-    //sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
+    sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
     sb.append("}");
     return sb.toString();
   }

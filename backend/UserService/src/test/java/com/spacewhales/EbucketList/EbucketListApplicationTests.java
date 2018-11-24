@@ -50,7 +50,7 @@ public class EbucketListApplicationTests
 		LoginToken t = new LoginToken();
 		t.setUsername("testUsername");
 		t.sessionToken("TokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenTokenToken");
-		//t.setExpiryTime(new Date());
+		t.setExpiryTime(new Date());
 		return t;
 	}
 	

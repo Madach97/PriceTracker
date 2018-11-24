@@ -95,7 +95,7 @@ public class UserJdbcDatabase implements JdbcDatabase{
 		
 		LoginToken t = new LoginToken();
 		t.setUsername(user.getUsername());
-		//t.setExpiryTime((Date) out.get("expiry"));
+		t.setExpiryTime((Date) out.get("expiry"));
 		t.setSessionToken((String) out.get("session_token"));
 		
 		return t;
