@@ -77,7 +77,7 @@ public class TrackingApiController implements TrackingApi {
                     Product product = walmartApiHandler.getProduct(body.getUrl());
                     ProductItem  productItem = new ProductItem();
                     productItem.setCurrentPrice(product.getSalePrice());
-                    productItem.setProductId(product.getItemId());
+                    productItem.setProductId(new Long(product.getItemId()).toString());
                     productItem.setProductName(product.getName());
                     productItem.setUrl(body.getUrl());
                     productItem.setVendor("Walmart");
@@ -86,8 +86,6 @@ public class TrackingApiController implements TrackingApi {
                     db.trackProduct(body);
                     return new ResponseEntity<ProductItem>(productItem, HttpStatus.OK);
                 }
-
-
             }
             catch (MalformedURLException me) {
                 log.error("url is not formatted properly");
@@ -98,7 +96,7 @@ public class TrackingApiController implements TrackingApi {
         return new ResponseEntity<ProductItem>(HttpStatus.BAD_REQUEST);
     }
 
-    public ResponseEntity<ProductItem> deleteTrackedProduct(@ApiParam(value = "",required=true) @PathVariable("productUrl") String productUrl, @Valid @RequestBody ProductRequest body) {
+    public ResponseEntity<ProductItem> deleteTrackedProduct(@ApiParam(value = "",required=true) @PathVariable("productId") String productId, @Valid @RequestBody ProductRequest body) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             if(!validateToken(body.getLoginToken())){
@@ -114,7 +112,7 @@ public class TrackingApiController implements TrackingApi {
         return new ResponseEntity<ProductItem>(HttpStatus.BAD_REQUEST);
     }
 
-    public ResponseEntity<ProductItem> getTrackedProductInfo(@ApiParam(value = "",required=true) @PathVariable("productUrl") String  productUrl,@ApiParam(value = "" ,required=true )  @Valid @RequestBody ProductRequest body) {
+    public ResponseEntity<ProductItem> getTrackedProductInfo(@ApiParam(value = "",required=true) @PathVariable("productId") String  productId,@ApiParam(value = "" ,required=true )  @Valid @RequestBody ProductRequest body) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")){
                 if(! validateToken(body.getLoginToken())){
@@ -152,21 +150,18 @@ public class TrackingApiController implements TrackingApi {
 
     public ResponseEntity<Void> pingTracking() {
         String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
     //assume can only update price
-    public ResponseEntity<ProductItem> updateProductItem(@ApiParam(value = "",required=true) @PathVariable("productUrl") String url, @RequestParam("price") Double price, @ApiParam(value = "" ,required=true )  @Valid @RequestBody LoginToken loginToken) {
+    public ResponseEntity<ProductItem> updateProductItem(@ApiParam(value = "",required=true) @PathVariable("productId") String productId, @RequestParam("price") Double price, @ApiParam(value = "" ,required=true )  @Valid @RequestBody ProductRequest productRequest) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
-            if(! validateToken(loginToken)){
+            if(! validateToken(productRequest.getLoginToken())){
                 return new ResponseEntity<ProductItem>(HttpStatus.FORBIDDEN);
             }
             else{
-                ProductRequest request = new ProductRequest();
-                request.setUrl(url);
-                request.setLoginToken(loginToken);
-                ProductItem prodItem = db.getProduct(request);
+                ProductItem prodItem = db.getProduct(productRequest);
                 prodItem.setCurrentPrice(price);
                 db.updatePrice(prodItem);
                 return new ResponseEntity<ProductItem>(prodItem, HttpStatus.OK);
