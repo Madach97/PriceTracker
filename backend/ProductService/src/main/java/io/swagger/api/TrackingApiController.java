@@ -50,9 +50,9 @@ public class TrackingApiController implements TrackingApi {
         this.objectMapper = objectMapper;
         this.request = request;
     }
-     /*uses the user service to authenticate user token*/
+    /*uses the user service to authenticate user token*/
     private boolean validateToken(LoginToken loginToken){
-        log.info("validating user");
+        log.info("validating user: " + loginToken);
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.postForEntity(userServiceUrl, loginToken, String.class);
         int status = response.getStatusCode().value();
@@ -66,7 +66,7 @@ public class TrackingApiController implements TrackingApi {
 
 
     public ResponseEntity<ProductItem> addTrackedProduct(@ApiParam(value = "" ,required=true )  @Valid @RequestBody ProductRequest body) {
-        log.info("adding product");
+        log.info("adding product: " + body);
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -101,7 +101,7 @@ public class TrackingApiController implements TrackingApi {
     }
 
     public ResponseEntity<ProductItem> deleteTrackedProduct(@ApiParam(value = "",required=true) @PathVariable("productId") String productId, @Valid @RequestBody ProductRequest body) {
-        log.info("deleting product");
+        log.info("deleting product: " + body);
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             if(!validateToken(body.getLoginToken())){
@@ -120,24 +120,24 @@ public class TrackingApiController implements TrackingApi {
     }
 
     public ResponseEntity<ProductItem> getTrackedProductInfo(@ApiParam(value = "",required=true) @PathVariable("productId") String  productId,@ApiParam(value = "" ,required=true )  @Valid @RequestBody ProductRequest body) {
-        log.info("get tracked product info");
+        log.info("get tracked product info: " + body);
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")){
-                if(! validateToken(body.getLoginToken())){
-                    log.info("get tracked product info: not authenticated");
-                    return new ResponseEntity<ProductItem>(HttpStatus.FORBIDDEN);
-                }
-                else {
-                    log.info("get tracked product info: authenticated");
-                    ProductItem item = db.getProduct(body);
-                    return new ResponseEntity<ProductItem>(item, HttpStatus.OK);
-                }
+            if(! validateToken(body.getLoginToken())){
+                log.info("get tracked product info: not authenticated");
+                return new ResponseEntity<ProductItem>(HttpStatus.FORBIDDEN);
+            }
+            else {
+                log.info("get tracked product info: authenticated");
+                ProductItem item = db.getProduct(body);
+                return new ResponseEntity<ProductItem>(item, HttpStatus.OK);
+            }
         }
         return new ResponseEntity<ProductItem>(HttpStatus.BAD_REQUEST);
     }
 
     public ResponseEntity<List<ProductItem>> getTrackedProducts(@ApiParam(value = "" ,required=true )  @Valid @RequestBody LoginToken body) {
-        log.info("getting all tracked product");
+        log.info("getting all tracked product: " + body);
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             if(! validateToken(body)){
@@ -170,7 +170,7 @@ public class TrackingApiController implements TrackingApi {
 
     //assume can only update price
     public ResponseEntity<ProductItem> updateProductItem(@ApiParam(value = "",required=true) @PathVariable("productId") String productId, @RequestParam("price") Double price, @ApiParam(value = "" ,required=true )  @Valid @RequestBody ProductRequest productRequest) {
-        log.info("update product item");
+        log.info("update product item: " + productRequest);
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             if(! validateToken(productRequest.getLoginToken())){

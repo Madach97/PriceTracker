@@ -26,96 +26,96 @@ import static io.restassured.RestAssured.given;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class EbucketListApplicationTests {
 
-	private static LoginToken loginToken;
+    private static LoginToken loginToken;
 
-	private static int port = 9090;
+    private static int port = 9090;
 
 
-	@BeforeClass
-	public static void setup() {
-		RestTemplate restTemplate = new RestTemplate();
-		LoginRequest loginRequest = new LoginRequest();
-		loginRequest.setUsername("test_user");
-		loginRequest.setPassword("test_user");
-		ResponseEntity<LoginToken> response = restTemplate.postForEntity("http://localhost:8080/users/token/login", loginRequest, LoginToken.class);
-		int status = response.getStatusCode().value();
-		loginToken = response.getBody();
-		if(status != 200){
-		   throw new NullPointerException("cannot get user token");
-		}
-		RestAssured.port = port;
-	}
+    @BeforeClass
+    public static void setup() {
+        RestTemplate restTemplate = new RestTemplate();
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername("test_user");
+        loginRequest.setPassword("test_user");
+        ResponseEntity<LoginToken> response = restTemplate.postForEntity("http://localhost:8080/users/token/login", loginRequest, LoginToken.class);
+        int status = response.getStatusCode().value();
+        loginToken = response.getBody();
+        if(status != 200){
+            throw new NullPointerException("cannot get user token");
+        }
+        RestAssured.port = port;
+    }
 
-	@Test
-	public void test1AddTrackedProduct() {
+    @Test
+    public void test1AddTrackedProduct() {
 
-	    String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
-		ProductRequest productRequest = new ProductRequest();
-		productRequest.setUrl(url);
-		productRequest.setLoginToken(loginToken);
+        String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setUrl(url);
+        productRequest.setLoginToken(loginToken);
 
-		Response response =
-				given().accept("application/json")
-						.contentType(ContentType.JSON)
-						.body(productRequest)
-						.when()
-						.put("/tracking/all")
-						.then()
-						.statusCode(200)
+        Response response =
+                given().accept("application/json")
+                        .contentType(ContentType.JSON)
+                        .body(productRequest)
+                        .when()
+                        .put("/tracking/all")
+                        .then()
+                        .statusCode(200)
                         .body("productId", Matchers.equalTo("10727980"))
                         .body("url", Matchers.equalTo(url))
-				        .extract().response();
+                        .extract().response();
 
-	}
+    }
 
-	@Test
-	public void test2GetTrackedProductInfo() {
+    @Test
+    public void test2GetTrackedProductInfo() {
 
-		String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
-		ProductRequest productRequest = new ProductRequest();
-		productRequest.setUrl("https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980");
-		productRequest.setLoginToken(loginToken);
-		Response response =
-				given().accept("application/json")
-						.contentType(ContentType.JSON)
-						.body(productRequest)
-						.when()
-						.post("/tracking/17239349/info")
-						.then()
-						.statusCode(200).extract().response();
+        String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setUrl("https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980");
+        productRequest.setLoginToken(loginToken);
+        Response response =
+                given().accept("application/json")
+                        .contentType(ContentType.JSON)
+                        .body(productRequest)
+                        .when()
+                        .post("/tracking/17239349/info")
+                        .then()
+                        .statusCode(200).extract().response();
 
-	}
+    }
 
-	@Test
-	public void test4DeleteTrackedProduct(){
+    @Test
+    public void test4DeleteTrackedProduct(){
 
-		String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
-		ProductRequest productRequest = new ProductRequest();
-		productRequest.setUrl("https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980");
-		productRequest.setLoginToken(loginToken);
-		Response response =
-				given().accept("application/json")
-						.contentType(ContentType.JSON)
-						.body(productRequest)
-						.when()
-						.delete("/tracking/17239349")
-						.then()
-						.statusCode(200).extract().response();
+        String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setUrl("https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980");
+        productRequest.setLoginToken(loginToken);
+        Response response =
+                given().accept("application/json")
+                        .contentType(ContentType.JSON)
+                        .body(productRequest)
+                        .when()
+                        .delete("/tracking/17239349")
+                        .then()
+                        .statusCode(200).extract().response();
 
-	}
+    }
 
-	@Test
-	public void test3GetTrackedProducts() {
+    @Test
+    public void test3GetTrackedProducts() {
 
-		Response response =
-				given().accept("application/json")
-						.contentType(ContentType.JSON)
-						.body(loginToken)
-						.when()
-						.post("/tracking/all")
-						.then()
-						.statusCode(200).extract().response();
+        Response response =
+                given().accept("application/json")
+                        .contentType(ContentType.JSON)
+                        .body(loginToken)
+                        .when()
+                        .post("/tracking/all")
+                        .then()
+                        .statusCode(200).extract().response();
 
-	}
+    }
 
 }
