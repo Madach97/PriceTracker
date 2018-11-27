@@ -5,15 +5,19 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.swagger.model.LoginToken;
 import io.swagger.model.ProductRequest;
+import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
+import io.restassured.matcher.RestAssuredMatchers.*;
+import org.hamcrest.Matchers.*;
 
 import static io.restassured.RestAssured.given;
 
@@ -25,6 +29,7 @@ public class EbucketListApplicationTests {
 	private static LoginToken loginToken;
 
 	private static int port = 9090;
+
 
 	@BeforeClass
 	public static void setup() {
@@ -44,18 +49,22 @@ public class EbucketListApplicationTests {
 	@Test
 	public void test1AddTrackedProduct() {
 
+	    String url = "https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980";
 		ProductRequest productRequest = new ProductRequest();
-		productRequest.setUrl("https://www.walmart.com/ip/Timex-Men-s-Classic-Digital-Watch-Gold-Tone-Stainless-Steel-Expansion-Band/10727980");
+		productRequest.setUrl(url);
 		productRequest.setLoginToken(loginToken);
 
 		Response response =
 				given().accept("application/json")
 						.contentType(ContentType.JSON)
 						.body(productRequest)
-						.when().
-						put("/tracking/all").
-						then()
-						.statusCode(200).extract().response();
+						.when()
+						.put("/tracking/all")
+						.then()
+						.statusCode(200)
+                        .body("productId", Matchers.equalTo("10727980"))
+                        .body("url", Matchers.equalTo(url))
+				        .extract().response();
 
 	}
 
