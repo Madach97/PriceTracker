@@ -179,6 +179,7 @@ public class TrackingApiController implements TrackingApi {
             }
             else{
                 log.info("update product: authenticated");
+
                 ProductItem prodItem = db.getProduct(productRequest);
                 prodItem.setCurrentPrice(price);
                 db.updatePrice(prodItem);
