@@ -46,6 +46,7 @@ CREATE TABLE public.users
     user_id serial,
     password_hash text COLLATE pg_catalog."default" NOT NULL,
     email text COLLATE pg_catalog."default" NOT NULL,
+    isAdmin boolean DEFAULT FALSE,
     CONSTRAINT users_pkey PRIMARY KEY (user_id)
 )
 WITH (
@@ -111,7 +112,7 @@ TABLESPACE pg_default;
 ALTER TABLE public.user_session
     OWNER to postgres;
 
-
+DROP FUNCTION IF EXISTS createUser;
 -- Takes a username, password and email.
 -- if conflicting credentials exist in database, or the provided credentials are invalid for any other reason, return false
 -- otherwise return true
@@ -132,17 +133,38 @@ END;
 $$
 language plpgsql;
 
+DROP FUNCTION IF EXISTS getUserHash;
+-- Grabs a user's password hash for authentication
+-- returns null string if user doesn't exist
+CREATE OR REPLACE FUNCTION getUserHash(IN user_name text, OUT hash text)
+AS $$
+DECLARE u_hash text;
+BEGIN
+    SELECT U.password_hash INTO u_hash
+    FROM users U
+    WHERE U.user_name = getUserHash.user_name;
+
+    IF u_hash IS NULL THEN
+	RETURN;
+    END IF;
+    
+    hash := u_hash;
+END;
+$$
+language plpgsql;
+
+DROP FUNCTION IF EXISTS loginUser(text);
 -- Takes a username and password hash
 -- if invalid credentials, return null.
 -- else refreshes tokens which are still valid.
 -- else logs in a user and gives them a new token.
-CREATE OR REPLACE FUNCTION loginUser(IN user_name text, IN password text, OUT session_token text, OUT expiry timestamp)
+CREATE OR REPLACE FUNCTION loginUser(IN user_name text, OUT session_token text, OUT expiry timestamp)
 AS $$
 DECLARE u_id INT;
 BEGIN
     SELECT U.user_id INTO u_id
     FROM users U
-    WHERE U.user_name = loginUser.user_name AND U.password_hash = loginUser.password;
+    WHERE U.user_name = loginUser.user_name;
 
     -- user doesn't exist in system
     IF u_id IS NULL THEN
@@ -182,13 +204,13 @@ END;
 $$
 language plpgsql;
 
-
+DROP FUNCTION IF EXISTS validateToken;
 -- Takes a parameterized login token
 -- if the token is currently valid, set status to true, else false
 -- if the token has ever been valid, return the expiration time, else null
 CREATE OR REPLACE FUNCTION validateToken(IN user_name text, IN session_token text, OUT expiry timestamp, OUT status boolean)
 AS $$
-begin
+BEGIN
     SELECT T.expiry_time INTO expiry
     FROM (SELECT expiry_time
             FROM users U 
@@ -200,9 +222,26 @@ begin
     status := expiry IS NOT NULL AND expiry > NOW();
 END;
 $$
-language plpgsql; 
+language plpgsql;
 
+DROP FUNCTION IF EXISTS validateAdmin;
+-- same as validateToken, but returns t/f based on whether or not the token is valid and the holder is an admin
+CREATE OR REPLACE FUNCTION validateAdmin(IN user_name text, IN session_token text, OUT admin_status boolean)
+AS $$
+DECLARE t_status boolean;
+BEGIN
+	select status into t_status from validateToken(user_name, session_token);
+	IF (t_status IS FALSE) THEN
+		admin_status := FALSE;
+		RETURN;
+	END IF;
+	
+	admin_status := EXISTS(SELECT * FROM users U WHERE U.user_name = validateAdmin.user_name AND U.isAdmin IS TRUE);
+END;
+$$
+language plpgsql;
 
+DROP FUNCTION IF EXISTS invalidateToken;
 -- Takes a parameterized login token 
 -- if the token is currently valid, set status to true and invalidate the user_session
 -- if the token has been previously terminated or has expired, set status to false, else true.
@@ -238,8 +277,9 @@ BEGIN
     END IF;
 END;
 $$
-language plpgsql; 
+language plpgsql;
 
+DROP FUNCTION IF EXISTS insertProduct;
 -- Inserts product into table. If product exists return False
 CREATE OR REPLACE FUNCTION insertProduct(IN site text, IN item_name text, IN price real,OUT status boolean)
 AS $$
@@ -258,6 +298,7 @@ END;
 $$
 language plpgsql;
 
+DROP FUNCTION IF EXISTS trackProduct;
 -- Track Product
 CREATE OR REPLACE FUNCTION trackProduct(IN token text, IN site text, OUT status boolean)
 AS $$
@@ -285,6 +326,7 @@ END;
 $$
 language plpgsql;
 
+DROP FUNCTION IF EXISTS untrackProduct;
 -- remove produce from wishlist of user
 CREATE OR REPLACE FUNCTION untrackProduct(IN token text, IN site text, OUT status boolean)
 AS $$
@@ -303,11 +345,16 @@ begin
     END IF;
     -- delete product into wishlist
     DELETE FROM wishlist W WHERE W.user_id = u_id AND W.site = untrackProduct.site;
+    -- check if product is still in other people's wishlist, if not delete product from products table
+    IF NOT EXISTS(SELECT * FROM wishlist W WHERE W.site = untrackProduct.site) THEN
+        DELETE FROM products P WHERE P.site = untrackProduct.site;
+    END IF;
     status := TRUE;
 END;
 $$
 language plpgsql;
 
+DROP FUNCTION IF EXISTS updateProduct;
 -- update product price
 CREATE OR REPLACE FUNCTION updateProduct(IN price real, IN site text, OUT status boolean)
 AS $$
@@ -324,16 +371,22 @@ END;
 $$
 language plpgsql;
 
+DROP FUNCTION IF EXISTS getProduct;
 -- get product name and the current price
-CREATE OR REPLACE FUNCTION getProduct(IN site text,OUT product_name text, OUT current_price real, OUT status boolean)
+CREATE OR REPLACE FUNCTION getProduct(IN site text,OUT product_name text, OUT current_price real, OUT yesterday_price real, OUT status boolean)
 AS $$
 begin
-    SELECT P.item_name, P.current_price INTO product_name, current_price FROM products P WHERE P.site = getProduct.site;
+    SELECT P.item_name, P.current_price, P.yesterday_price INTO product_name, current_price,yesterday_price FROM products P WHERE P.site = getProduct.site;
+    IF product_name IS NULL or current_price Is NULL or yesterday_price is NULL THEN
+        status := FALSE;
+        return;
+    END IF;
     status := TRUE;
 END;
 $$
 language plpgsql;
 
+DROP FUNCTION IF EXISTS getUserId;
 -- get products from user wishlist
 CREATE OR REPLACE FUNCTION getUserId(IN session_token text, OUT user_id int, OUT status boolean)
 AS $$
@@ -347,3 +400,30 @@ END;
 $$
 language plpgsql;
 
+DROP FUNCTION IF EXISTS getAllProducts;
+-- get all products in system - for batch ONLY
+CREATE OR REPLACE FUNCTION getAllProducts() RETURNS SETOF PRODUCTS
+AS $$
+BEGIN
+	RETURN QUERY SELECT * FROM PRODUCTS;
+END;
+$$
+language plpgsql;
+
+DROP FUNCTION IF EXISTS getUsersToNotify;
+-- get all user wishlists that have been updated
+CREATE OR REPLACE FUNCTION getUsersToNotify() RETURNS TABLE (user_name text, email text)
+AS $$
+BEGIN
+	RETURN QUERY 
+		(
+		SELECT U.user_name AS user_name, U.email AS email
+		FROM users U
+		JOIN wishlist L ON L.user_id = U.user_id
+		JOIN products P ON P.site = L.site
+		WHERE P.current_price < P.yesterday_price AND P.current_price <= L.trigger_price
+		GROUP BY U.user_id
+		);
+END;
+$$
+language plpgsql;
