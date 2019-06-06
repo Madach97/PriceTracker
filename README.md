@@ -1,5 +1,7 @@
  <h1>PriceTracker</h1>
 
+This repository is a copy of the original project repository.
+
  <h2>Description</h2>
  A wishlist app where you can track a list of items from the online shopping sites (such as Amazon, BestBuy, Walmart)that you want to purchase from, and get notified when something goes on sale or has a promotional deal.
 
